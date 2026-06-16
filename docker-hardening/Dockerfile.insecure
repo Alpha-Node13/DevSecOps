@@ -1,0 +1,36 @@
+# Insecure Dockerfile - DO NOT USE IN PRODUCTION
+
+# Using outdated base image with known vulnerabilities
+FROM ubuntu:18.04
+
+# Running as root user (dangerous!)
+USER root
+
+# Hardcoded secrets (bad practice!)
+ENV DATABASE_PASSWORD=supersecret123
+ENV API_KEY=sk-1234567890abcdef
+
+# Installing unnecessary packages
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    vim \
+    net-tools \
+    python3 \
+    python3-pip \
+    ssh
+
+# Exposing unnecessary ports
+EXPOSE 22 80 443 3306 5432
+
+# Adding vulnerable dependencies
+RUN pip3 install flask==0.12.2
+
+# Copying files with wrong permissions
+COPY app.py /app/
+RUN chmod 777 /app/app.py
+
+WORKDIR /app
+
+# Running application as root
+CMD ["python3", "app.py"]
